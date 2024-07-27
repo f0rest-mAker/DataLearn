@@ -27,10 +27,10 @@
 **Решение**:  
 Сначала объединим данные из 3 листов в 1 таблицу. После чего начнём создавать сводные таблицы для создания отчетов (Динамика продаж по категориям, количество возвратов, динамика продаж по сегментам и т.д.). Как только доделаем графики к нашим сводным таблицам, объединим их в листе Dashboard.  
 Скриншоты некоторых частей Dashboard:  
-![image](https://github.com/f0rest-mAker/DataLearn/blob/09844541b366e9564875eefc42931d88339be9a4/DE-101/Module1/screenshots/scrshot1.png)  
-![image](https://github.com/f0rest-mAker/DataLearn/blob/09844541b366e9564875eefc42931d88339be9a4/DE-101/Module1/screenshots/scrshot2.png)  
-![image](https://github.com/f0rest-mAker/DataLearn/blob/09844541b366e9564875eefc42931d88339be9a4/DE-101/Module1/screenshots/scrshot3.png)  
-![image](https://github.com/f0rest-mAker/DataLearn/blob/09844541b366e9564875eefc42931d88339be9a4/DE-101/Module1/screenshots/scrshot4.png)  
-![image](https://github.com/f0rest-mAker/DataLearn/blob/09844541b366e9564875eefc42931d88339be9a4/DE-101/Module1/screenshots/scrshot5.png)  
+![image](https://github.com/f0rest-mAker/DataLearn/blob/4594c2ad25159ed5d33c9a35fed61dcb32af0868/DE-101/Module1/screenshots/scrshot1.png)  
+![image](https://github.com/f0rest-mAker/DataLearn/blob/4594c2ad25159ed5d33c9a35fed61dcb32af0868/DE-101/Module1/screenshots/scrshot2.png)  
+![image](https://github.com/f0rest-mAker/DataLearn/blob/4594c2ad25159ed5d33c9a35fed61dcb32af0868/DE-101/Module1/screenshots/scrshot3.png)  
+![image](https://github.com/f0rest-mAker/DataLearn/blob/4594c2ad25159ed5d33c9a35fed61dcb32af0868/DE-101/Module1/screenshots/scrshot4.png)  
+![image](https://github.com/f0rest-mAker/DataLearn/blob/4594c2ad25159ed5d33c9a35fed61dcb32af0868/DE-101/Module1/screenshots/scrshot5.png)  
   
 Файл Excel с решением: [Sample - Superstore - Dashboard.xlsx](https://github.com/f0rest-mAker/DataLearn/blob/29d4941717ebfa884773c4812a6371187151eda1/DE-101/Module1/Sample%20-%20Superstore%20-%20Dashboard.xlsx).
