@@ -35,12 +35,16 @@
 *Решение*:  
 В идеале нужно было создать учетную запись в AWS, однако есть маленькие трудности. Дело в том, что в Amazon теперь нельзя создать российский аккаунт, поэтому нужно было искать альтернативы.  
 Альтернативой стал сайт [beget](https://cp.beget.com/), в котором есть 30-ти дневный бесплатный доступ к хостингу. Но опять же, встала ещё одна проблема, бесплатно можно было создать только БД MySQL (+ морока). К счастью, синтаксис у MySQL и PostgreSQL похожий и можно было всё переписать под него.  
-Итоговые файлы: [staging.sql](https://github.com/f0rest-mAker/DataLearn/blob/669fae7935b00301b47c87d98f232acbe54e4bf9/DE-101/Module2/2_5/staging.sql), [from_stg_to_dw.sql](https://github.com/f0rest-mAker/DataLearn/blob/669fae7935b00301b47c87d98f232acbe54e4bf9/DE-101/Module2/2_5/from_stg_to_dw.sql)
+Итоговые файлы: [staging.sql](https://github.com/f0rest-mAker/DataLearn/blob/669fae7935b00301b47c87d98f232acbe54e4bf9/DE-101/Module2/2_5/staging.sql), [from_stg_to_dw.sql](https://github.com/f0rest-mAker/DataLearn/blob/669fae7935b00301b47c87d98f232acbe54e4bf9/DE-101/Module2/2_5/from_stg_to_dw.sql).  
+Пишем запросы:
+![image](https://github.com/f0rest-mAker/DataLearn/blob/1b2362bf1845df64bb9b173a866c09f3d686caac/DE-101/Module2/screenshots/cloud2.png)  
+Получаем изменения в облаке:  
+![image](https://github.com/f0rest-mAker/DataLearn/blob/1b2362bf1845df64bb9b173a866c09f3d686caac/DE-101/Module2/screenshots/cloud1.png)
+  
 - [x] Сделано.
 ### 2.5. Как донести данные до бизнес-пользователя.
 *Задача*: Необходимо создать дашборд в одном из решений, которые мы рассмотрели в видеолекции.
-*Решение*:  
-Сделаем дашборд в `Google Locker Studio`. Выберем в качестве источников все таблицы нашей модели данных, подключившись к нашей БД в облаке.  
+*Решение*: Сделаем дашборд в `Google Locker Studio`. Выберем в качестве источников все таблицы нашей модели данных, подключившись к нашей БД в облаке.  
 ![image](https://github.com/f0rest-mAker/DataLearn/blob/669fae7935b00301b47c87d98f232acbe54e4bf9/DE-101/Module2/screenshots/sources.png)
 
 Сделаем простые дашборды:
