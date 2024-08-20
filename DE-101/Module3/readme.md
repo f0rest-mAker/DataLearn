@@ -34,6 +34,13 @@
 ![image](https://github.com/f0rest-mAker/DataLearn/blob/a53a0bd65df8a88ac2617564d892c18219e3af4f/DE-101/Module3/img/airbnb.png)  
 
 Конечно, этот датасет не заменит полностью исходный, но как по мне, они более менее похожи. Скачиваем два файла: `listings.csv` и `reviews.csv` и загружаем их в tableau public. У этих файлов есть общий атрубит `listing_id`, с помощью него будем создавать связь между двумя таблицами.  
+### Dashboard Canvas
+Попробуем сделать Dashboard Canvas для нашего проекта.  
+
+![image](https://github.com/f0rest-mAker/DataLearn/blob/832fcd18afdb0d9491a960ae0b9933eacd0d4077/DE-101/Module3/img/Canvas.png)  
+
+![image](https://github.com/f0rest-mAker/DataLearn/blob/832fcd18afdb0d9491a960ae0b9933eacd0d4077/DE-101/Module3/img/Canvas%20Layout.png)  
+  
 ### Дашборды
 В качестве основного показателя дома будем брать рейтинг, который будем высчитывать по формуле:  
 Overall Rating = review_scores_rating + (review_scores_accuracy + review_scores_cleanliness + review_scores_checkin + review_scores_communication + review_scores_location + review_scores_value) / 6  
