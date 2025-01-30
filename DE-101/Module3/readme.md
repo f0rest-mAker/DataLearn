@@ -34,6 +34,13 @@
 ![image](https://github.com/f0rest-mAker/DataLearn/blob/a53a0bd65df8a88ac2617564d892c18219e3af4f/DE-101/Module3/img/airbnb.png)  
 
 Конечно, этот датасет не заменит полностью исходный, но как по мне, они более менее похожи. Скачиваем два файла: `listings.csv` и `reviews.csv` и загружаем их в tableau public. У этих файлов есть общий атрубит `listing_id`, с помощью него будем создавать связь между двумя таблицами.  
+### Dashboard Canvas
+Попробуем сделать Dashboard Canvas для нашего проекта.  
+
+![image](https://github.com/f0rest-mAker/DataLearn/blob/832fcd18afdb0d9491a960ae0b9933eacd0d4077/DE-101/Module3/img/Canvas.png)  
+
+![image](https://github.com/f0rest-mAker/DataLearn/blob/832fcd18afdb0d9491a960ae0b9933eacd0d4077/DE-101/Module3/img/Canvas%20Layout.png)  
+  
 ### Дашборды
 В качестве основного показателя дома будем брать рейтинг, который будем высчитывать по формуле:  
 Overall Rating = review_scores_rating + (review_scores_accuracy + review_scores_cleanliness + review_scores_checkin + review_scores_communication + review_scores_location + review_scores_value) / 6  
@@ -59,7 +66,7 @@ Overall Rating = review_scores_rating + (review_scores_accuracy + review_scores_
 Итак, если основываться на наших дашбордах, то можно выяснить следующее:  
 1) Лучшим городом можно считать Mexico City, так как он имеет высокий рейтинг, хорошие цены, так ещё покупатели довольны ей, так же стоит отметить Paris и New York, так как там находится очень много сдаваемого жилья, однако они стоят немного дороже, но покупатели более менее довольны ценой.
 2) В Мексике стоит присмотреться к району Cuauhtemoc, у него довольно хорошие оценки и большое количество домов, также можно посмотреть район Miguel Hidalgo, хоть там немного дорогие дома чем в Cuauhtemoc, но средняя оценка чуть выше.
-3) В районе Cuauhtemoc лучшим объявлением является: "Depa en dos plantas con amplia terraza, sanitizado" имея при себе отличные оценки, а также нормальную цену, ещё есть "Bonito Apartamento Art Deco en el Barrio Condesa" у него больше отзывов, так как сдавался долгое время (видно из line plot), и более низкая цена, так что данный дом тоже может подойти для сдачи в аренду.  
+3) В районе Cuauhtemoc лучшим объявлением является: "Breakfast included, 20 minutes from downtown CDMX" имея при себе отличные оценки, достаточное количество отзывов, а также довольно низкую цену, ещё есть "Beautiful duplex perfect Location" у него больше отзывов, так как таких объявлений несколько, но стоит подороже.  
   
 Стоит отметить, что для всех домов есть единая тенденция, в 2020-21 году количество отзывов сильно уменьшилось, так как в данный период был карантин и многим не было дело до аренды. Так что если бы не было ковида, то количество отзывов увеличилось бы для всех домов, что показало бы более реальные цифры оценок.  
 А теперь попробую поглубже поизучать Tableau, потом стоит попробовать улучшить данные дашборды.  
