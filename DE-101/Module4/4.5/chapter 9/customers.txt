@@ -1,0 +1,10 @@
+cus_name;cus_lastname;add_street
+Olivia         ;Martin         ;89 mxrljtnv street            
+Mrignayani     ;Shah           ;186 uuhrbkhd street           
+Jack           ;Fobin          ;202 mpeqhosg street           
+Love           ;Lindstr?m      ;243 dpmprpwh street           
+Max            ;Bengtsson      ;41 fjffmbgi street            
+Ruth           ;Scott          ;291 yoklmceg street           
+Elijah         ;King           ;120 pcgjbzqw street           
+Johnathan      ;Williams       ;292 hxbfjyxe street           
+Demetrius      ;Garc?a         ;177 vfbrwjmw street           
