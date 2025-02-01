@@ -11,10 +11,11 @@ import psycopg2
 import gspread
 
 
-PATH = '/root/airflow-data/dags/clan/'
+PATH = '/root/airflow-data/dags/clan/' # Директория гду будут хранятся наши файлы, связанные с проектом
 csv_files = ['members', 'raids_attacks', 'raids', 'unattacked_players']
-sheet_file_id = "12KQYVV6bOiibUGg-HVi5wkmtY0vfjee-JT_hg0bZ6-M"
+sheet_file_id = "-----------" # ID Google Sheet, где будут хранятся данные, указывете свой файл
 
+# Перевод привелегии клана
 privilegies = {
     "admin": "Старейшина",
     "coLeader": "Соруководитель",
@@ -28,14 +29,12 @@ default_args = {
     'start_date': datetime(2024, 12, 13)
 }
 
-clan_tag = '232RVCU8GQL'
-token ="eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiIsImtpZCI6IjI4YTMxOGY3LTAwMDAtYTFlYi03ZmExLTJjNzQzM2M2Y2NhNSJ9.eyJpc3MiOiJzdXBlcmNlbGwiLCJhdWQiOiJzdXBlcmNlbGw6Z2FtZWFwaSIsImp0aSI6IjM4Y2RlZTk0LTA2YWEtNGNhNS05NTVjLWU2ZTJmNWRjZjE0ZiIsImlhdCI6MTczNzk1OTU3MCwic3ViIjoiZGV2ZWxvcGVyLzkxZTBhZjQxLWFiMDEtNzBkMS1mNjI4LTkyNjUyMDFiMTRlNyIsInNjb3BlcyI6WyJjbGFzaCJdLCJsaW1pdHMiOlt7InRpZXIiOiJkZXZlbG9wZXIvc2lsdmVyIiwidHlwZSI6InRocm90dGxpbmcifSx7ImNpZHJzIjpbIjE3OC4yMDcuMjEuNDkiXSwidHlwZSI6ImNsaWVudCJ9XX0.UKMSRE666SMNGbX5rZrh2S3dAvyo544U67go_jXVuB2TFCSEDaSta_RnKfpKgSZ3yWNpkvkP0UhfbRlZ0Ys1RQ"
+clan_tag = '232RVCU8GQL' # Тег клана
+token ="<api_key>" # Ключ api из официального сайта
 info_type = {
     "members": f"https://api.clashofclans.com/v1/clans/%{clan_tag}/members",
-    #"clan_war_league": f"https://api.clashofclans.com/v1/clans/%{clan_tag}/currentwar/leaguegroup",
-    #"clan_war": f"https://api.clashofclans.com/v1/clans/%{clan_tag}/currentwar",
     "raids": f"https://api.clashofclans.com/v1/clans/%{clan_tag}/capitalraidseasons"
-}
+} # Ссылки для скачивания json файлов
 
 def get_last_raid_id(cursor):
     cursor.execute("SELECT last_value from raid_id;")
@@ -50,21 +49,22 @@ with DAG(
     catchup=False
 ) as dag:
     
-    connection = psycopg2.connect(database="clan", user="postgres", password="1029384756", host="localhost", port=5433)
+    connection = psycopg2.connect(database="database", user="user", password="password", host="host", port=5433) # Создаем подключение к БД
     cursor = connection.cursor()
 
-    with open(PATH + 'scripts/creds.json') as f:
+    with open(PATH + 'scripts/creds.json') as f: # Данные для подключения к Google Sheet API
         credentials = json.load(f)
-    gc = gspread.service_account_from_dict(credentials)
+    gc = gspread.service_account_from_dict(credentials) # Подключение к Google Sheet через API
 
     task_start = DummyOperator(task_id="start")
 
     @python_task(task_id="close_connection", trigger_rule='none_failed')
     def end_operations(**context):
-        connection.close()
+        connection.close() # Закрываем подключение
         
     connection_end = end_operations()
-    # Downloading json files
+    # Создаем группу задач для загрузки JSON через API
+    # для этого используем BashOperator, и сохраняем их локально в файлах
     with TaskGroup('loading_json_files') as loading_json_files:
         for (name, url) in info_type.items():
             bash_load = BashOperator(
