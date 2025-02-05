@@ -11,10 +11,11 @@ import psycopg2
 import gspread
 
 
-PATH = '/root/airflow-data/dags/clan/'
+PATH = '/root/airflow-data/dags/clan/' # Директория гду будут хранятся наши файлы, связанные с проектом
 csv_files = ['members', 'raids_attacks', 'raids', 'unattacked_players']
-sheet_file_id = "12KQYVV6bOiibUGg-HVi5wkmtY0vfjee-JT_hg0bZ6-M"
+sheet_file_id = "-----------" # ID Google Sheet, где будут хранятся данные, указывете свой файл
 
+# Перевод привелегии клана
 privilegies = {
     "admin": "Старейшина",
     "coLeader": "Соруководитель",
@@ -28,14 +29,12 @@ default_args = {
     'start_date': datetime(2024, 12, 13)
 }
 
-clan_tag = '232RVCU8GQL'
-token ="eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiIsImtpZCI6IjI4YTMxOGY3LTAwMDAtYTFlYi03ZmExLTJjNzQzM2M2Y2NhNSJ9.eyJpc3MiOiJzdXBlcmNlbGwiLCJhdWQiOiJzdXBlcmNlbGw6Z2FtZWFwaSIsImp0aSI6IjM4Y2RlZTk0LTA2YWEtNGNhNS05NTVjLWU2ZTJmNWRjZjE0ZiIsImlhdCI6MTczNzk1OTU3MCwic3ViIjoiZGV2ZWxvcGVyLzkxZTBhZjQxLWFiMDEtNzBkMS1mNjI4LTkyNjUyMDFiMTRlNyIsInNjb3BlcyI6WyJjbGFzaCJdLCJsaW1pdHMiOlt7InRpZXIiOiJkZXZlbG9wZXIvc2lsdmVyIiwidHlwZSI6InRocm90dGxpbmcifSx7ImNpZHJzIjpbIjE3OC4yMDcuMjEuNDkiXSwidHlwZSI6ImNsaWVudCJ9XX0.UKMSRE666SMNGbX5rZrh2S3dAvyo544U67go_jXVuB2TFCSEDaSta_RnKfpKgSZ3yWNpkvkP0UhfbRlZ0Ys1RQ"
+clan_tag = '232RVCU8GQL' # Тег клана
+token ="<api_key>" # Ключ api из официального сайта
 info_type = {
     "members": f"https://api.clashofclans.com/v1/clans/%{clan_tag}/members",
-    #"clan_war_league": f"https://api.clashofclans.com/v1/clans/%{clan_tag}/currentwar/leaguegroup",
-    #"clan_war": f"https://api.clashofclans.com/v1/clans/%{clan_tag}/currentwar",
     "raids": f"https://api.clashofclans.com/v1/clans/%{clan_tag}/capitalraidseasons"
-}
+} # Ссылки для скачивания json файлов
 
 def get_last_raid_id(cursor):
     cursor.execute("SELECT last_value from raid_id;")
@@ -50,21 +49,22 @@ with DAG(
     catchup=False
 ) as dag:
     
-    connection = psycopg2.connect(database="clan", user="postgres", password="1029384756", host="localhost", port=5433)
+    connection = psycopg2.connect(database="database", user="user", password="password", host="host", port=5433) # Создаем подключение к БД
     cursor = connection.cursor()
 
-    with open(PATH + 'scripts/creds.json') as f:
+    with open(PATH + 'scripts/creds.json') as f: # Данные для подключения к Google Sheet API
         credentials = json.load(f)
-    gc = gspread.service_account_from_dict(credentials)
+    gc = gspread.service_account_from_dict(credentials) # Подключение к Google Sheet через API
 
     task_start = DummyOperator(task_id="start")
 
     @python_task(task_id="close_connection", trigger_rule='none_failed')
     def end_operations(**context):
-        connection.close()
+        connection.close() # Закрываем подключение
         
     connection_end = end_operations()
-    # Downloading json files
+    # Создаем группу задач для загрузки JSON через API
+    # для этого используем BashOperator, и сохраняем их локально в файлах
     with TaskGroup('loading_json_files') as loading_json_files:
         for (name, url) in info_type.items():
             bash_load = BashOperator(
@@ -75,11 +75,12 @@ with DAG(
                 )
             )
 
-    # Updating clan's members info
+    # Создаем группы задач для чтения данных из json и выгрузки их в БД и Google Sheet
     with TaskGroup('working_with_members') as working_with_members:
         @python_task(task_id='sql_members', templates_dict={"path": PATH})
         def create_sql_members(templates_dict):
             with open(templates_dict['path']+'sql/members.sql', 'w') as sql_file:
+                # Очищаем таблицу для хранения актуальной информации об игроках
                 sql_file.write("TRUNCATE TABLE members;\n")
                 with open(templates_dict['path']+'json/members.json', 'r') as json_file:
                     members = json.load(json_file)['items']
@@ -92,6 +93,7 @@ with DAG(
             name = 'members'
             row = 2
 
+            # Очищаем старые данные и добавляем актуальные
             print("[uploading to google drive]")
             sh = gc.open_by_key(sheet_file_id)
             sheet = sh.worksheet(name)
@@ -113,7 +115,6 @@ with DAG(
 
         c_sql_members >> members_update >> upload_members
 
-    # Updating clan's raids info
     with TaskGroup('working_with_raids', prefix_group_id=False) as working_with_raids:
         @branch_task(task_id='checking_for_raid_updates', templates_dict={"path": PATH})
         def check_for_updates(templates_dict):
@@ -124,9 +125,11 @@ with DAG(
             raid_info = cursor.fetchall()
 
             timestamp_now = datetime.now()
+            # Если в БД нет информации про последний рейд, то добавляем информацию про него.
             if raid_info == []:
                 return "add_raid_info"
-            if timestamp_now <= raid_info[0][3]:
+            # Если последний рейд ещё не закончен, обновляем информацию про последний рейд.
+            if timestamp_now <= raid_info[0][3]: # в raid_info[0][3] - время окончания рейда
                 return "update_fresh_raid_info"
             elif raid_info[0][3] < timestamp_now:
                 start = ''
@@ -136,9 +139,10 @@ with DAG(
                     json_raid = json.load(json_file)['items'][0]
                     start = json_raid['startTime'][:-1]
                     end = json_raid['endTime'][:-1]
+                # Если начался новый рейд, то добавляем про него информацию в БД
                 if start <= str_timestamp < end:
                     return "add_raid_info"
-                else:
+                else: # Иначе отмечаем в БД, что рейд закончился
                     return "end_current_raid_if_need"
 
         @python_task(task_id="add_raid_info", templates_dict={"path": PATH})
@@ -178,10 +182,10 @@ with DAG(
             cursor.execute(f"SELECT * from raids where raid_id = {last_raid_id};")
             raid_info = cursor.fetchall()[0]
             timestamp_now = context["ts"][:-13]
+            # Если время окончания рейда окажется больше чем времени последнего обновления строки, то закрываем рейд и делаем последнее обновление
             if (raid_info[3] > raid_info[8]):
                 with open(templates_dict['path']+'json/raids.json', 'r') as json_file:
                     raid = json.load(json_file)['items'][0]
-                    # Добавь сюда изменение начала и конца, чтобы убрать баг при пропуске нескольких рейдов
                     cursor.execute(
                         f"UPDATE raids set state='ended', "
                         f"starttime = '{raid['startTime']}', "
@@ -221,6 +225,7 @@ with DAG(
 
         @python_task(task_id="upload_raid_to_google_drive")
         def upload_raid_to_drive():
+            # Публикуем данные в Google Sheet
             headers = {
                 'raids': ['raid_id', 'state', 'startTime', 'endTime', 'capitalTotalLoot', 'raidsCompleted', 'totalAttacks', 'districtDestroyed', 'lastupdated']
             }

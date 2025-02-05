@@ -40,3 +40,17 @@
 
 <img src="https://github.com/f0rest-mAker/DataLearn/blob/main/DE-101/Module4/img/Subsystem_8.png" width="600" height="340">
 
+## Fancy ETL
+### Apache Airflow
+Apache Airflow - это оркестратор задач с открытым исходным кодом, предназначенный для создания, планирования, мониоринга и оркестрирования потоков операции по обработке данных, для этого он использует направленный ациклический граф (DAG). DAG состоит из задач (task), которые являются экземплярами некоторого класса, написанного на Python. Эти классы обычно называют операторами. Задачи определяют что будет выполняться, а операторы как это будет выполняться. Некоторые примеры операторов: `PythonOperator (выполняет функцию, написанную на Python), BashOperator (выполняет Bash скрипт), PostgresOperator (выполняет некоторый sql скрипт в БД на Postgres)` и т.д. Полный список операторов можно посмотреть в [документации](https://airflow.apache.org/docs/apache-airflow/stable/operators-and-hooks-ref.html). Чтобы установить Airflow потребуется Linux (подойдет WSL, если у вас Windows) или Docker. Запуск, просмотр, некоторые настройки производятся запуском сервера.  
+С помощью Airflow был написан [DAG](https://github.com/f0rest-mAker/DataLearn/edit/main/DE-101/Module4/Airflow%20DAGs/orders_dag.py), который выглядит следующим образом:  
+
+![image](https://github.com/f0rest-mAker/DataLearn/blob/main/DE-101/Module4/img/Superstore_DAG.png)  
+  
+Типы использованных операторов:  
+- `DummyOperator` - `start`; точка входа в DAG. Ничего не делает
+- `FileSensor` - `wait_for_orders_file; wait_for_people_file; wait_for_returns_file`; сенсор, который запускается, когда появится соответсвующий файл в указанной директории.
+- `PythonOperator` - `joining_files; creating_dimension_and_fact_csv; creating_sql_scripts; cleaning_after`; оператор, который запускает функции python (переданные в python_callable) для обработки файлов, а именно объединяет все файлы, создает данные для таблиц измерения и фактоы и пишет sql скрипты, для заполнения таблиц (предворительно очистив таблицу). Самая последняя задача очищает все созданные файлы csv и sql
+- `PostgresOperator` - `orders_sql; order_details_sql; deliver_sql; ship_sql; customer_sql; product_sql`; оператор, который запускает sql скрипт в БД, который указан в postgres_conn_id. Чтобы добавить свое соединение к БД, нужно в админ странице (наш запущенный сервер airflow) создать поле, в котором записываются все необходимые данные для подключения (сервер, логин, пароль и т.д.).
+
+Логика работы DAGа такова, сначала он ждет, пока в указанной директории не появятся все нужные файлы, потом объединяет все файлы в одно, дальше этот файл используется для создания измерениии, фактов и sql скриптов для добавления их в БД, после чего выполняются все sql скрипты.  
