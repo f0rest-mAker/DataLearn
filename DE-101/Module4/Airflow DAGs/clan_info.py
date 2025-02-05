@@ -75,11 +75,12 @@ with DAG(
                 )
             )
 
-    # Updating clan's members info
+    # Создаем группы задач для чтения данных из json и выгрузки их в БД и Google Sheet
     with TaskGroup('working_with_members') as working_with_members:
         @python_task(task_id='sql_members', templates_dict={"path": PATH})
         def create_sql_members(templates_dict):
             with open(templates_dict['path']+'sql/members.sql', 'w') as sql_file:
+                # Очищаем таблицу для хранения актуальной информации об игроках
                 sql_file.write("TRUNCATE TABLE members;\n")
                 with open(templates_dict['path']+'json/members.json', 'r') as json_file:
                     members = json.load(json_file)['items']
@@ -92,6 +93,7 @@ with DAG(
             name = 'members'
             row = 2
 
+            # Очищаем старые данные и добавляем актуальные
             print("[uploading to google drive]")
             sh = gc.open_by_key(sheet_file_id)
             sheet = sh.worksheet(name)
@@ -113,7 +115,6 @@ with DAG(
 
         c_sql_members >> members_update >> upload_members
 
-    # Updating clan's raids info
     with TaskGroup('working_with_raids', prefix_group_id=False) as working_with_raids:
         @branch_task(task_id='checking_for_raid_updates', templates_dict={"path": PATH})
         def check_for_updates(templates_dict):
@@ -124,9 +125,11 @@ with DAG(
             raid_info = cursor.fetchall()
 
             timestamp_now = datetime.now()
+            # Если в БД нет информации про последний рейд, то добавляем информацию про него.
             if raid_info == []:
                 return "add_raid_info"
-            if timestamp_now <= raid_info[0][3]:
+            # Если последний рейд ещё не закончен, обновляем информацию про последний рейд.
+            if timestamp_now <= raid_info[0][3]: # в raid_info[0][3] - время окончания рейда
                 return "update_fresh_raid_info"
             elif raid_info[0][3] < timestamp_now:
                 start = ''
@@ -136,9 +139,10 @@ with DAG(
                     json_raid = json.load(json_file)['items'][0]
                     start = json_raid['startTime'][:-1]
                     end = json_raid['endTime'][:-1]
+                # Если начался новый рейд, то добавляем про него информацию в БД
                 if start <= str_timestamp < end:
                     return "add_raid_info"
-                else:
+                else: # Иначе отмечаем в БД, что рейд закончился
                     return "end_current_raid_if_need"
 
         @python_task(task_id="add_raid_info", templates_dict={"path": PATH})
@@ -178,10 +182,10 @@ with DAG(
             cursor.execute(f"SELECT * from raids where raid_id = {last_raid_id};")
             raid_info = cursor.fetchall()[0]
             timestamp_now = context["ts"][:-13]
+            # Если время окончания рейда окажется больше чем времени последнего обновления строки, то закрываем рейд и делаем последнее обновление
             if (raid_info[3] > raid_info[8]):
                 with open(templates_dict['path']+'json/raids.json', 'r') as json_file:
                     raid = json.load(json_file)['items'][0]
-                    # Добавь сюда изменение начала и конца, чтобы убрать баг при пропуске нескольких рейдов
                     cursor.execute(
                         f"UPDATE raids set state='ended', "
                         f"starttime = '{raid['startTime']}', "
@@ -221,6 +225,7 @@ with DAG(
 
         @python_task(task_id="upload_raid_to_google_drive")
         def upload_raid_to_drive():
+            # Публикуем данные в Google Sheet
             headers = {
                 'raids': ['raid_id', 'state', 'startTime', 'endTime', 'capitalTotalLoot', 'raidsCompleted', 'totalAttacks', 'districtDestroyed', 'lastupdated']
             }
