@@ -11,7 +11,7 @@ import psycopg2
 import gspread
 
 
-PATH = '/root/airflow-data/dags/clan/' # Директория гду будут хранятся наши файлы, связанные с проектом
+PATH = '/root/airflow-data/dags/clan/' # Директория где будут хранятся наши файлы, связанные с проектом
 csv_files = ['members', 'raids_attacks', 'raids', 'unattacked_players']
 sheet_file_id = "-----------" # ID Google Sheet, где будут хранятся данные, указывете свой файл
 
